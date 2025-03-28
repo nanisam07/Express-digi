@@ -1,62 +1,80 @@
-import 'dotenv/config'
-import express from 'express'
+import "dotenv/config";
+import express from "express";
 
-const app = express()
+const app = express();
+const port = process.env.PORT || 3000;
 
-const port =   process.env.PORT|| 3000
-app.use(express.json())
+/*
+app.get("/", (req, res) => {
+  res.send("Hello from Hitesh and his tea!");
+});
 
-let SamData = []
-let nextId = 1
+app.get("/ice-tea", (req, res) => {
+  res.send("What ice tea would you prefer?");
+});
 
-app.post('/sams',(req,res)=>{
-    const {name, price} = req.body
-    const newSam = {
-        id: nextId++,
-        name,
-        price
-    }
-    SamData.push(newSam)
-    res.status(201).send(newSam)
-})
+app.get("/twitter", (req, res) => {
+  res.send("hiteshdotcom");
+});
+*/
 
-app.get('/sams/:id',(req,res)=>{
-     const tea = SamData.find(SamData => SamData.id === parseInt(req.params.id))
-     if(!tea){
-        return res.status(404).send('The tea with the given ID was not found')
-     }
-     res.status(200).send(tea)
-})
+app.use(express.json());
 
-//update tea 
-app.put('/sams/:id/',(req,res)=>{
-    req.params.id = req.params.id
-    const tea = SamData.find(SamData => SamData.id === parseInt(req.params.id))
-    if(!tea){
-        return res.status(404).send('The tea with the given ID was not found')
-    }
-    const{name, price} = req.body 
-    tea.name = name
-    tea.price = price
-    res.status(200).send(tea)
-})
-// delete tea 
-app.delete('/sams/:id',(req,res)=>{
-     const index=  SamData.findIndex(SamData => SamData.id === parseInt(req.params.id))
-        if(index === -1){
-            return res.status(404).send('The tea with the given ID was not found')
-        }
-        SamData.splice(index,1)
-        res.status(204).send("tea deleted")
-})
+let teaData = [];
+let nextId = 1;
 
- app.get('/sams',(req,res)=>{
-    res.status(200).send(SamData)
- })
+// add a new tea
+app.post("/teas", (req, res) => {
+  const { name, price } = req.body;
+  const newTea = {
+    id: nextId++,
+    name,
+    price,
+  };
+  teaData.push(newTea);
+  res.status(201).send(newTea);
+});
 
-app.listen(port,()=>{
-    console.log(`Server is running on port ${port}....`)
-})
-app.listen(port,()=>{
-    console.log(`hello`)
-})
+// get all teas
+app.get("/teas", (req, res) => {
+  res.status(200).send(teaData);
+});
+
+// get a tea with id
+app.get("/teas/:id", (req, res) => {
+  const tea = teaData.find((tea) => tea.id === parseInt(req.params.id));
+  if (!tea) {
+    return res.status(404).send("Tea not found");
+  }
+
+  res.status(200).send(tea);
+});
+
+// update tea
+app.put("/teas/:id", (req, res) => {
+  const tea = teaData.find((tea) => tea.id === parseInt(req.params.id));
+  if (!tea) {
+    return res.status(404).send("Tea not found");
+  }
+
+  const { name, price } = req.body;
+  tea.name = name;
+  tea.price = price;
+
+  res.status(200).send(tea);
+});
+
+// delete tea
+app.delete("/teas/:id", (req, res) => {
+  const index = teaData.findIndex((tea) => tea.id === parseInt(req.params.id));
+  if (index === -1) {
+    return res.status(404).send("Tea not found");
+  }
+
+  teaData.splice(index, 1);
+  res.status(204).send("Deleted");
+});
+
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}/`);
+});
